@@ -22,8 +22,8 @@ so sorry, no pagination.
 - Run `go build -o gmail-unwanted-remover cmd/gmail-unwanted-remover/main.go`
 - First run: `./gmail-unwanted-remover`, it will show auth url, follow it
 - Copy auth code from url in browser
-- Put it to console, press Enter (no you have `token.json` to make authorized requests to API)
-  - Do not store `credentials.json` and `token.json` in git repository
+- Put it to console, press Enter (now you have `token.json` -- to make authorized requests to Gmail API)
+  - DO NOT STORE `credentials.json` and `token.json` in git repository
 
 ## Run as Daemon on Linux systems (example)
 - Install supervisord `sudo apt install supervisor`
