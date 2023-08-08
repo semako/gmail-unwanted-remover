@@ -1,0 +1,8 @@
+
+stopList:
+  words:
+    - unwanted test in message
+  domains:
+    - unwanted-domain-in-from-clause-in-email.com
+  emails:
+    - unwanted-sender@unwanted-domain-in-from-clause-in-email.com
