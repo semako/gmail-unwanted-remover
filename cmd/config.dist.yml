@@ -1,8 +1,11 @@
-
-stopList:
-  words:
-    - unwanted test in message
-  domains:
-    - unwanted-domain-in-from-clause-in-email.com
-  emails:
-    - unwanted-sender@unwanted-domain-in-from-clause-in-email.com
+checkInterval: 10s
+matcher:
+  allowedWords:
+    - allowed words list, will skip emails from deleting if occurs in text or/and subject
+  stopList:
+    words:
+      - unwanted test in message
+    domains:
+      - unwanted-domain-in-from-clause-in-email.com
+    emails:
+      - unwanted-sender@unwanted-domain-in-from-clause-i n-email.com

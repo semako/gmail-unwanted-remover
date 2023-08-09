@@ -10,42 +10,45 @@ import (
 )
 
 type Matcher struct {
-	rxWords *regexp.Regexp
-	rxEmail *regexp.Regexp
-	cfg     config.StopList
+	rxForbiddenWords *regexp.Regexp
+	rxAllowedWords   *regexp.Regexp
+	rxEmail          *regexp.Regexp
+	cfg              config.Matcher
 }
 
-func New(cfg config.StopList) *Matcher {
+func New(cfg config.Matcher) *Matcher {
 	return &Matcher{
-		cfg:     cfg,
-		rxWords: regexp.MustCompile("(?i)(" + strings.Join(cfg.Words, "|") + ")"),
-		rxEmail: regexp.MustCompile("(?i)<([^>]+)>"),
+		cfg:              cfg,
+		rxForbiddenWords: regexp.MustCompile("(?i)(" + strings.Join(cfg.StopList.Words, "|") + ")"),
+		rxAllowedWords:   regexp.MustCompile("(?i)(" + strings.Join(cfg.AllowedWords, "|") + ")"),
+		rxEmail:          regexp.MustCompile("(?i)<([^>]+)>"),
 	}
 }
 
 func (m *Matcher) MatchMessage(msg *gmail.Message) bool {
 	// match subject
-	if m.rxWords.MatchString(m.GetSubject(msg)) {
+	if m.rxForbiddenWords.MatchString(m.GetSubject(msg)) {
 		return true
 	}
 
 	// match body
 	for _, p := range msg.Payload.Parts {
 		body, _ := base64.URLEncoding.DecodeString(p.Body.Data)
-		if m.rxWords.MatchString(string(body)) {
+		if m.rxForbiddenWords.MatchString(string(body)) && !m.rxAllowedWords.MatchString(string(body)) {
 			return true
 		}
 	}
 
+	// match email and domain
 	if email, err := m.getEmailInFrom(m.getFrom(msg)); err == nil {
-		for _, e := range m.cfg.Emails {
+		for _, e := range m.cfg.StopList.Emails {
 			if e == email {
 				return true
 			}
 		}
 
 		if domain, err := m.getDomainFromEmail(email); err == nil {
-			for _, d := range m.cfg.Domains {
+			for _, d := range m.cfg.StopList.Domains {
 				if d == domain {
 					return true
 				}

@@ -4,7 +4,12 @@ import "time"
 
 type Config struct {
 	CheckInterval time.Duration `yaml:"checkInterval"`
-	StopList      StopList      `yaml:"stopList"`
+	Matcher       Matcher       `yaml:"matcher"`
+}
+
+type Matcher struct {
+	AllowedWords []string `yaml:"allowedWords"`
+	StopList     StopList `yaml:"stopList"`
 }
 
 type StopList struct {

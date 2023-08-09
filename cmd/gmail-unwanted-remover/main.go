@@ -14,7 +14,7 @@ import (
 func main() {
 	cfg := initCfg()
 	ga := initGAPI()
-	mtchr := matcher.New(cfg.StopList)
+	mtchr := matcher.New(cfg.Matcher)
 	ctx := context.Background()
 	gm := initGmail(ctx, ga.GetClient())
 	rm := remover.New(cfg.CheckInterval, gm, mtchr)
