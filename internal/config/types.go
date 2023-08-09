@@ -3,8 +3,10 @@ package config
 import "time"
 
 type Config struct {
-	CheckInterval time.Duration `yaml:"checkInterval"`
-	Matcher       Matcher       `yaml:"matcher"`
+	CredentialsFilePath string        `yaml:"credentialsFilePath"`
+	TokenFilePath       string        `yaml:"tokenFilePath"`
+	CheckInterval       time.Duration `yaml:"checkInterval"`
+	Matcher             Matcher       `yaml:"matcher"`
 }
 
 type Matcher struct {

@@ -13,7 +13,7 @@ import (
 
 func main() {
 	cfg := initCfg()
-	ga := initGAPI()
+	ga := initGAPI(cfg.CredentialsFilePath, cfg.TokenFilePath)
 	mtchr := matcher.New(cfg.Matcher)
 	ctx := context.Background()
 	gm := initGmail(ctx, ga.GetClient())
@@ -40,8 +40,8 @@ func initCfg() *config.Config {
 	return cfg
 }
 
-func initGAPI() *gapi.GAPI {
-	g, err := gapi.New()
+func initGAPI(credentialsFilePath, tokenFilePath string) *gapi.GAPI {
+	g, err := gapi.New(credentialsFilePath, tokenFilePath)
 	if err != nil {
 		log.Fatalf("failed to init gapi: %v", err)
 	}

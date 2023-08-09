@@ -19,11 +19,26 @@ so sorry, no pagination.
 ## Setup
 - Copy `cmd/config.dist.yml` to `cmd/config.yml`
 - Make necessary changes there
-- Run `go build -o gmail-unwanted-remover cmd/gmail-unwanted-remover/main.go`
-- First run: `./gmail-unwanted-remover`, it will show auth url, follow it
+  - Make sure you set correct paths for: `credentialsFilePath` and `tokenFilePath` variables
+- Run `go build -o generate-token cmd/generate-token/main.go` to generate token
+- First run: `./generate-token`, it will show auth url, follow it
 - Copy auth code from url in browser
 - Put it to console, press Enter (now you have `token.json` -- to make authorized requests to Gmail API)
   - DO NOT STORE `credentials.json` and `token.json` in git repository
+- Finally run `go build -o gmail-unwanted-remover cmd/gmail-unwanted-remover/main.go`
+  - Run: `./gmail-unwanted-remover`, to run a daemon
+
+## Docker
+- Run `docker build -t gmail-unwanted-remover:latest .`
+- Run 
+    ```
+    docker run \
+        -v $(pwd)/credentials.json:/google/credentials.json \
+        -v $(pwd)/token.json:/google/token.json \
+        -v $(pwd)/cmd/config.yml:/app/cmd/config.yml \
+        --restart always \
+        docker.io/library/gmail-unwanted-remover:latest
+    ```
 
 ## Run as Daemon on Linux systems (example)
 - Install supervisord `sudo apt install supervisor`

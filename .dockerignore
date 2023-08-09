@@ -1,0 +1,7 @@
+Dockerfile
+README.md
+LICENSE
+token.json
+credentials.json
+cmd/config.dist.yml
+cmd/config.yml

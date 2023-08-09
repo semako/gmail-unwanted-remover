@@ -15,23 +15,22 @@ const credentialsFilePath = "credentials.json"
 const tokenFilePath = "token.json"
 
 type GAPI struct {
-	client *http.Client
+	client                             *http.Client
+	credentialsFilePath, tokenFilePath string
 }
 
-func New() (*GAPI, error) {
-	g := &GAPI{}
-
-	cred, err := g.readCredentials()
-	if err != nil {
-		return nil, fmt.Errorf("gapi: failed to read credentials: %w", err)
+func New(credentialsFilePath, tokenFilePath string) (*GAPI, error) {
+	g := &GAPI{
+		credentialsFilePath: credentialsFilePath,
+		tokenFilePath:       tokenFilePath,
 	}
 
-	config, err := google.ConfigFromJSON(cred, gmail.MailGoogleComScope)
+	cfg, err := g.getConfig()
 	if err != nil {
-		return nil, fmt.Errorf("gapi: unable to parse client secret file to config: %w", err)
+		return nil, fmt.Errorf("gapi: failed to init config: %w", err)
 	}
 
-	cli, err := g.getClient(config)
+	cli, err := g.getClient(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("gapi: failed to init client: %w", err)
 	}
@@ -41,28 +40,51 @@ func New() (*GAPI, error) {
 	return g, nil
 }
 
+func NewSimple(credentialsFilePath, tokenFilePath string) *GAPI {
+	return &GAPI{
+		credentialsFilePath: credentialsFilePath,
+		tokenFilePath:       tokenFilePath,
+	}
+}
+
 func (g *GAPI) GetClient() *http.Client {
 	return g.client
 }
 
+func (g *GAPI) getConfig() (*oauth2.Config, error) {
+	cred, err := g.readCredentials()
+	if err != nil {
+		return nil, fmt.Errorf("gapi: failed to read credentials: %w", err)
+	}
+
+	return google.ConfigFromJSON(cred, gmail.MailGoogleComScope)
+}
+
 func (g *GAPI) readCredentials() ([]byte, error) {
-	return os.ReadFile(credentialsFilePath)
+	return os.ReadFile(g.credentialsFilePath)
+}
+
+func (g *GAPI) GenerateToken() error {
+	cfg, err := g.getConfig()
+	if err != nil {
+		return fmt.Errorf("gapi: GenerateToken: failed to init config: %w", err)
+	}
+
+	tok, err := g.getTokenFromWeb(cfg)
+	if err != nil {
+		return fmt.Errorf("gapi: GenerateToken: failed to get token from web: %w", err)
+	}
+	if err = g.saveToken(g.tokenFilePath, tok); err != nil {
+		return fmt.Errorf("gapi: GenerateToken: failed to save token: %w", err)
+	}
+	return nil
 }
 
 // Retrieve a token, saves the token, then returns the generated client.
 func (g *GAPI) getClient(config *oauth2.Config) (*http.Client, error) {
-	// The file token.json stores the user's access and refresh tokens, and is
-	// created automatically when the authorization flow completes for the first
-	// time.
-	tok, err := g.tokenFromFile(tokenFilePath)
+	tok, err := g.tokenFromFile(g.tokenFilePath)
 	if err != nil {
-		tok, err = g.getTokenFromWeb(config)
-		if err != nil {
-			return nil, err
-		}
-		if err = g.saveToken(tokenFilePath, tok); err != nil {
-			return nil, err
-		}
+		return nil, err
 	}
 	return config.Client(context.Background(), tok), nil
 }

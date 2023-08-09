@@ -1,3 +1,5 @@
+credentialsFilePath: "/google/credentials.json"
+tokenFilePath: "/google/token.json"
 checkInterval: 10s
 matcher:
   allowedWords:
